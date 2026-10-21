@@ -31,10 +31,28 @@ export const Route = createFileRoute("/goblin/$id")({
 function GoblinChat() {
   const g = Route.useLoaderData();
   const transport = useMemo(() => new DefaultChatTransport({ api: "/api/chat", body: { goblin: g.number } }), [g.number]);
-  const { messages, sendMessage, status, error, stop } = useChat({ id: `goblin-${g.number}`, transport });
+  const { messages, setMessages, sendMessage, status, error, stop } = useChat({ id: `goblin-${g.number}`, transport });
   const [input, setInput] = useState("");
   const end = useRef<HTMLDivElement>(null);
   const busy = status === "submitted" || status === "streaming";
+  const storeKey = `goblin-chat-${g.number}`;
+  const loaded = useRef(false);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(storeKey);
+      if (saved) setMessages(JSON.parse(saved));
+    } catch {
+      /* ignore bad saved data */
+    }
+    loaded.current = true;
+  }, [storeKey, setMessages]);
+
+  useEffect(() => {
+    if (!loaded.current || status === "streaming" || status === "submitted") return;
+    const keep = messages.filter((m) => m.parts.some((p) => p.type === "text" && p.text));
+    localStorage.setItem(storeKey, JSON.stringify(keep));
+  }, [messages, status, storeKey]);
 
   useEffect(() => {
     end.current?.scrollIntoView({ behavior: "smooth" });

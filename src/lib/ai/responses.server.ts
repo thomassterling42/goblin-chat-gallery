@@ -44,6 +44,17 @@ export function createResponsesCall(
   return {
     result,
     response: () =>
-      withLovableAiGatewayRunIdHeader(result.toUIMessageStreamResponse({ sendReasoning: true }), runIdFetch),
+      withLovableAiGatewayRunIdHeader(
+        result.toUIMessageStreamResponse({
+          sendReasoning: true,
+          onError: (e) => {
+            const status = (e as { statusCode?: number })?.statusCode;
+            if (status === 402) return "The goblins are out of AI credits. Add credits in your workspace, then try again.";
+            if (status === 429) return "Too many messages at once — wait a moment and try again.";
+            return "Something went wrong. Try sending your message again.";
+          },
+        }),
+        runIdFetch,
+      ),
   };
 }
