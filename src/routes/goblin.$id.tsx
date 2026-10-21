@@ -36,7 +36,9 @@ function GoblinChat() {
   const end = useRef<HTMLDivElement>(null);
   const busy = status === "submitted" || status === "streaming";
 
-  useEffect(() => end.current?.scrollIntoView({ behavior: "smooth" }), [messages]);
+  useEffect(() => {
+    end.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
