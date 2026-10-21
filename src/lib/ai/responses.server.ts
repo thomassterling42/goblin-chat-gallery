@@ -33,7 +33,7 @@ export function createResponsesCall(
         ...(reasoning
           ? {
               forceReasoning: true,
-              reasoningEffort: "medium",
+              reasoningEffort: "low",
               reasoningSummary: "auto",
               include: ["reasoning.encrypted_content"],
             }
